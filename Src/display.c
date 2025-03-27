@@ -115,54 +115,54 @@ void DISplay_Set_Pos(unsigned char x, unsigned char y)
 	DISplay_WR_Byte((x&0x0f),OLED_CMD); 
 }   	  
 
-//驴陋脝么OLED脧脭脢戮    
+//开启OLED显示    
 void DISplay_Display_On(void)
 {
-	DISplay_WR_Byte(0X8D,OLED_CMD);  //SET DCDC脙眉脕卯
+	DISplay_WR_Byte(0X8D,OLED_CMD);  //SET DCDC命令
 	DISplay_WR_Byte(0X14,OLED_CMD);  //DCDC ON
 	DISplay_WR_Byte(0XAF,OLED_CMD);  //DISPLAY ON
 }
-//鹿脴卤脮OLED脧脭脢戮     
+//关闭OLED显示     
 void DISplay_Display_Off(void)
 {
-	DISplay_WR_Byte(0X8D,OLED_CMD);  //SET DCDC脙眉脕卯
+	DISplay_WR_Byte(0X8D,OLED_CMD);  //SET DCDC命令
 	DISplay_WR_Byte(0X10,OLED_CMD);  //DCDC OFF
 	DISplay_WR_Byte(0XAE,OLED_CMD);  //DISPLAY OFF
 }		   			 
-//脟氓脝脕潞炉脢媒,脟氓脥锚脝脕,脮没赂枚脝脕脛禄脢脟潞脷脡芦碌脛!潞脥脙禄碌茫脕脕脪禄脩霉!!!	  
+//清屏函数,清完屏,整个屏幕是黑色的!和没点亮一样!!!	  
 void DISplay_Clear(void)  
 {  
 	uint8_t i,n;		    
 	for(i=0;i<8;i++)  
 	{  
-		DISplay_WR_Byte (0xb0+i,OLED_CMD);    //脡猫脰脙脪鲁碌脴脰路拢篓0~7拢漏
-		DISplay_WR_Byte (0x00,OLED_CMD);      //脡猫脰脙脧脭脢戮脦禄脰脙隆陋脕脨碌脥碌脴脰路
-		DISplay_WR_Byte (0x10,OLED_CMD);      //脡猫脰脙脧脭脢戮脦禄脰脙隆陋脕脨赂脽碌脴脰路   
+		DISplay_WR_Byte (0xb0+i,OLED_CMD);    //设置页地址（0~7）
+		DISplay_WR_Byte (0x00,OLED_CMD);      //设置显示位置—列低地址
+		DISplay_WR_Byte (0x10,OLED_CMD);      //设置显示位置—列高地址   
 		for(n=0;n<128;n++)
       DISplay_WR_Byte(0,OLED_DATA); 
-	} //赂眉脨脗脧脭脢戮
+	} //更新显示
 }
 void DISplay_On(void)  
 {  
 	uint8_t i,n;		    
 	for(i=0;i<8;i++)  
 	{  
-		DISplay_WR_Byte (0xb0+i,OLED_CMD);    //脡猫脰脙脪鲁碌脴脰路拢篓0~7拢漏
-		DISplay_WR_Byte (0x00,OLED_CMD);      //脡猫脰脙脧脭脢戮脦禄脰脙隆陋脕脨碌脥碌脴脰路
-		DISplay_WR_Byte (0x10,OLED_CMD);      //脡猫脰脙脧脭脢戮脦禄脰脙隆陋脕脨赂脽碌脴脰路   
+		DISplay_WR_Byte (0xb0+i,OLED_CMD);    //设置页地址（0~7）
+		DISplay_WR_Byte (0x00,OLED_CMD);      //设置显示位置—列低地址
+		DISplay_WR_Byte (0x10,OLED_CMD);      //设置显示位置—列高地址   
 		for(n=0;n<128;n++)
       DISplay_WR_Byte(1,OLED_DATA); 
-	} //赂眉脨脗脧脭脢戮
+	} //更新显示
 }
-//脭脷脰赂露篓脦禄脰脙脧脭脢戮脪禄赂枚脳脰路没,掳眉脌篓虏驴路脰脳脰路没
+//在指定位置显示一个字符,包括部分字符
 //x:0~127
 //y:0~63
-//mode:0,路麓掳脳脧脭脢戮;1,脮媒鲁拢脧脭脢戮				 
-//size:脩隆脭帽脳脰脤氓 16/12 
+//mode:0,反白显示;1,正常显示				 
+//size:选择字体 16/12 
 void DISplay_ShowChar(uint8_t x,uint8_t y,uint8_t chr,uint8_t Char_Size)
 {      	
   unsigned char c=0,i=0;	
-  c=chr-' ';//碌脙碌陆脝芦脪脝潞贸碌脛脰碌			
+  c=chr-' ';//得到偏移后的值			
   if(x>Max_Column-1) {x=0;y=y+2;}
   if(Char_Size ==16)
   {
@@ -180,7 +180,7 @@ void DISplay_ShowChar(uint8_t x,uint8_t y,uint8_t chr,uint8_t Char_Size)
       DISplay_WR_Byte(F6x8[c][i],OLED_DATA);
   }
 }
-//m^n潞炉脢媒
+//m^n函数
 uint32_t DISplay_pow(uint8_t m,uint8_t n)
 {
 	uint32_t result=1;	 
@@ -188,11 +188,11 @@ uint32_t DISplay_pow(uint8_t m,uint8_t n)
     result *= m;    
 	return result;
 }				  
-//脧脭脢戮脢媒脳脰
-//x,y :脝冒碌茫脳酶卤锚	 
-//len :脢媒脳脰碌脛脦禄脢媒
-//size:脳脰脤氓麓贸脨隆
-//num:脢媒脰碌(0~4294967295);	 		  
+//显示数字
+//x,y :起点坐标	 
+//len :数字的位数
+//size:字体大小
+//num:数值(0~4294967295);	 		  
 void DISplay_ShowNum(uint8_t x,uint8_t y,uint32_t num,uint8_t len,uint8_t size2)
 {         	
   uint8_t t,temp;
@@ -214,12 +214,12 @@ void DISplay_ShowNum(uint8_t x,uint8_t y,uint32_t num,uint8_t len,uint8_t size2)
   }
 } 
 
-//脧脭脢戮脨隆脢媒
-//x,y :脝冒碌茫脳酶卤锚	 
-//len :脢媒脳脰碌脛脦禄脢媒
-//size:脳脰脤氓麓贸脨隆
-//num:脢媒脰碌
-void DISplay_ShowFolatNum(uint8_t x,uint8_t y,float num,uint8_t len,uint8_t size2)//len:麓酶脨隆脢媒碌茫隆垄赂潞潞脜脢媒戮脻赂枚脢媒
+//显示小数
+//x,y :起点坐标	 
+//len :数字的位数
+//size:字体大小
+//num:数值
+void DISplay_ShowFolatNum(uint8_t x,uint8_t y,float num,uint8_t len,uint8_t size2)//len:带小数点、负号数据个数
 {         	
   uint8_t t,temp,i=0;
   uint8_t enshow=0;
@@ -228,9 +228,9 @@ void DISplay_ShowFolatNum(uint8_t x,uint8_t y,float num,uint8_t len,uint8_t size
   if(num<0)
   {
     num = -num;
-    i = 1;     //赂潞脢媒卤锚脰戮	
+    i = 1;     //负数标志	
   }	
-  k = num * 10; //麓脣麓娄脦陋脧脭脢戮脪禄脦禄脨隆脢媒*10脳陋禄炉脦陋脮没脢媒
+  k = num * 10; //此处为显示一位小数*10转化为整数
   for(t = 0 ; t < len ; t++)
   {
     temp = (k / DISplay_pow(10,len-t-1)) % 10;
@@ -238,29 +238,29 @@ void DISplay_ShowFolatNum(uint8_t x,uint8_t y,float num,uint8_t len,uint8_t size
     {
       if(temp==0)
       {
-        if(( (k / DISplay_pow(10,len-t-2)%10) != 0) && (i==1))//脜脨露脧脢脟路帽脦陋赂潞脢媒脟脪脭脷脳卯赂脽脦禄脟掳脪禄脦禄
+        if(( (k / DISplay_pow(10,len-t-2)%10) != 0) && (i==1))//判断是否为负数且在最高位前一位
         {
           DISplay_ShowChar(x+(size2/2)*t,y,'-',size2);
-          i=0;	                                    //脟氓鲁媒脜脨露脧潞贸脪禄脦禄碌脛卤锚脰戮
+          i=0;	                                    //清除判断后一位的标志
         }
         else
-          DISplay_ShowChar(x+(size2/2)*t,y,' ',size2);   //脠莽鹿没脙禄碌陆脢媒脳脰戮脥脧脭脢戮驴脮赂帽
+          DISplay_ShowChar(x+(size2/2)*t,y,' ',size2);   //如果没到数字就显示空格
         continue;
       }
       else 
-        enshow = 1;		//麓脣麓娄脢脟脜脨露脧脢脟路帽脪陋脧脭脢戮脢媒脳脰	
+        enshow = 1;		//此处是判断是否要显示数字	
     }
     if(t==len-1)
     {
       DISplay_ShowChar(x+(size2/2)*t,y,'.',size2);
-      //脜脨露脧脢脟路帽脦陋脳卯潞贸脪禄脦禄碌脛脟掳脪禄脦禄拢篓脧脭脢戮脪禄脦禄脨隆脢媒拢漏
+      //判断是否为最后一位的前一位（显示一位小数）
       t++;
     }
-    DISplay_ShowChar(x+(size2/2)*t,y,temp+'0',size2); //脪禄脦禄脪禄脦禄脧脭脢戮脧脗脠楼
+    DISplay_ShowChar(x+(size2/2)*t,y,temp+'0',size2); //一位一位显示下去
   }
 }
 
-//脧脭脢戮脪禄赂枚脳脰路没潞脜麓庐
+//显示一个字符号串
 void DISplay_ShowString(uint8_t x,uint8_t y,uint8_t *chr,uint8_t Char_Size)
 {
 	unsigned char j=0;
@@ -273,7 +273,7 @@ void DISplay_ShowString(uint8_t x,uint8_t y,uint8_t *chr,uint8_t Char_Size)
     j++;
 	}
 }
-//脧脭脢戮潞潞脳脰
+//显示汉字
 void DISplay_ShowCHinese(uint8_t x,uint8_t y,uint8_t no)
 {      			    
 	uint8_t t,adder=0;
@@ -290,7 +290,7 @@ void DISplay_ShowCHinese(uint8_t x,uint8_t y,uint8_t no)
     adder+=1;
   }					
 }
-/***********鹿娄脛脺脙猫脢枚拢潞脧脭脢戮脧脭脢戮BMP脥录脝卢128隆脕64脝冒脢录碌茫脳酶卤锚(x,y),x碌脛路露脦搂0隆芦127拢卢y脦陋脪鲁碌脛路露脦搂0隆芦7*****************/
+/***********功能描述：显示显示BMP图片128×64起始点坐标(x,y),x的范围0～127，y为页的范围0～7*****************/
 void DISplay_DrawBMP(unsigned char x0, unsigned char y0,unsigned char x1, unsigned char y1,unsigned char BMP[])
 { 	
  unsigned int j=0;
@@ -313,7 +313,7 @@ void DISplay_DrawBMP(unsigned char x0, unsigned char y0,unsigned char x1, unsign
 
 
 
-//鲁玫脢录禄炉SSD1306					    
+//初始化SSD1306					    
 void DISplay_Init(void)
 { 	
   HAL_Delay(800);

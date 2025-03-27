@@ -13,9 +13,9 @@ float invSqrt(float x)
     return y;
 }
 /**
-  * @brief   脠媒脰谩脢媒戮脻陆酶脨脨赂鲁脰碌虏脵脳梅
-  * @param   *_out_data 脢盲鲁枚脢媒戮脻脠媒脰谩脰赂脮毛卤盲脕驴
-  * @param   *_in_data 脢盲脠毛脠媒脰谩脢媒戮脻脰赂脮毛卤盲脕驴
+  * @brief   三轴数据进行赋值操作
+  * @param   *_out_data 输出数据三轴指针变量
+  * @param   *_in_data 输入三轴数据指针变量
   * @retval  x
   */
 void _set_val(SI_F_XYZ *_out_data,SI_F_XYZ *_in_data)
@@ -25,10 +25,10 @@ void _set_val(SI_F_XYZ *_out_data,SI_F_XYZ *_in_data)
   _out_data->z = _in_data->z;
 }
 /*
- * 潞炉脢媒脙没拢潞set_value
- * 脙猫脢枚  拢潞赂酶脢媒戮脻赂鲁脰碌
- * 脢盲脠毛  拢潞_in_dat脢盲脠毛脢媒戮脻脢脳碌脴脰路拢卢 value脣霉脨猫脪陋赂鲁碌脛脰碌
- * 路碌禄脴  拢潞     
+ * 函数名：set_value
+ * 描述  ：给数据赋值
+ * 输入  ：_in_dat输入数据首地址， value所需要赋的值
+ * 返回  ：     
  */
 void  setFloatValue(SI_F_XYZ *_in_data,float value)
 {
@@ -37,10 +37,10 @@ void  setFloatValue(SI_F_XYZ *_in_data,float value)
     _in_data->z = value;
 }
 /*
- * 潞炉脢媒脙没拢潞f_abs
- * 脙猫脢枚  拢潞赂隆碌茫脨脥脢媒戮脻戮酶露脭脰碌
- * 脢盲脠毛  拢潞f赂隆碌茫脢媒戮脻 
- * 路碌禄脴  拢潞戮酶露脭脰碌 
+ * 函数名：f_abs
+ * 描述  ：浮点型数据绝对值
+ * 输入  ：f浮点数据 
+ * 返回  ：绝对值 
  */
 float f_abs(float f)
 {
@@ -49,10 +49,10 @@ float f_abs(float f)
 	return -f;
 }
 /**
-  * @brief   赂隆碌茫脢媒戮脻卤脠陆脧脜脨露脧陆酶脨脨卤锚脰戮路碌禄脴
-  * @param   *_in_data 脢盲脠毛卤禄卤脠陆脧碌脛脠媒脰谩脢媒戮脻脰赂脮毛卤盲脕驴
-  * @param   templt 脧脿卤脠陆脧碌脛虏脦驴录脰碌
-  * @retval  HAL_OK 脭脷虏脦驴录脰碌路露脦搂脛脷路碌禄脴OK拢卢HAL_ERROR 虏禄脭脷虏脦驴录路露脦搂脛脷路碌禄脴ERROR
+  * @brief   浮点数据比较判断进行标志返回
+  * @param   *_in_data 输入被比较的三轴数据指针变量
+  * @param   templt 相比较的参考值
+  * @retval  HAL_OK 在参考值范围内返回OK，HAL_ERROR 不在参考范围内返回ERROR
   */
 HAL_StatusTypeDef FloatComparison(SI_F_XYZ *_in_data , float templt)
 {
@@ -62,11 +62,11 @@ HAL_StatusTypeDef FloatComparison(SI_F_XYZ *_in_data , float templt)
 }
 
 /**
-  * @brief   16脦禄脮没脨脦脢媒戮脻陆酶脨脨路露脦搂脧脼脰脝
-  * @param   thr_in 脨猫脪陋卤禄脧脼脰脝碌脛脢盲脠毛脢媒戮脻
-  * @param   thr_min 脳卯脨隆脰碌
-  * @param   thr_max 脳卯麓贸脰碌
-  * @retval  脭脷脧脼脰脝路露脦搂脛脷碌脛脰碌
+  * @brief   16位整形数据进行范围限制
+  * @param   thr_in 需要被限制的输入数据
+  * @param   thr_min 最小值
+  * @param   thr_max 最大值
+  * @retval  在限制范围内的值
   */
 uint16_t u16RangeLimit(uint16_t thr_in,uint16_t thr_min,uint16_t thr_max)
 {
@@ -76,9 +76,9 @@ uint16_t u16RangeLimit(uint16_t thr_in,uint16_t thr_min,uint16_t thr_max)
 	return thr_in;
 }
 /**
-  * @brief   脮没脨脦脢媒戮脻陆酶脨脨脠隆戮酶露脭脰碌
-  * @param   f 脨猫脪陋卤禄脠隆戮酶露脭脰碌碌脛脢盲脠毛脢媒戮脻
-  * @retval  戮酶露脭脰碌脢媒戮脻
+  * @brief   整形数据进行取绝对值
+  * @param   f 需要被取绝对值的输入数据
+  * @retval  绝对值数据
   */
 int int_abs(int f)
 {

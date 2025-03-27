@@ -5,12 +5,12 @@
 #include "stdio.h"
 
 #define DEBUG
-#define FLASH_SIZE 64                   /* 脣霉脩隆MCU碌脛FLASH脠脻脕驴麓贸脨隆(碌楼脦禄脦陋K) */
+#define FLASH_SIZE 64                   /* 所选MCU的FLASH容量大小(单位为K) */
 
-#if FLASH_SIZE < 256                    /* flash脨隆脫脷256K脳脰陆脷碌脛脨戮脝卢碌脛脪禄赂枚脡脠脟酶碌脴脰路脦陋1K拢卢路帽脭貌脦陋2K */
-#define SECTOR_SIZE 1024                /* 脳脰陆脷 */
+#if FLASH_SIZE < 256                    /* flash小于256K字节的芯片的一个扇区地址为1K，否则为2K */
+#define SECTOR_SIZE 1024                /* 字节 */
 #else
-#define SECTOR_SIZE 2048                /* 脳脰陆脷 */
+#define SECTOR_SIZE 2048                /* 字节 */
 #endif
 
 _FLASH_flag flash_flag = {0};
@@ -21,41 +21,41 @@ static FLASH_EraseInitTypeDef EraseInitStruct;
 static uint32_t PageError;
 
 /**
-  * @brief   脧貌flash脨麓脠毛掳毛脳脰脢媒戮脻拢篓16脦禄拢漏
-  * @param   startAddress 脨麓脠毛麓娄碌脛脝冒脢录碌脴脰路
-  * @param   *writeData 16脦禄脢媒戮脻脰赂脮毛卤盲脕驴
-  * @param   countToWrite 脨麓脠毛碌脛掳毛脳脰脢媒戮脻脢媒脕驴
+  * @brief   向flash写入半字数据（16位）
+  * @param   startAddress 写入处的起始地址
+  * @param   *writeData 16位数据指针变量
+  * @param   countToWrite 写入的半字数据数量
   * @retval  x
   */
 void FLASH_WriteHalfWordData( uint32_t startAddress, uint16_t *writeData, uint16_t countToWrite )
 {
 	uint16_t	i;
-	uint32_t	offsetAddress;  /* 脝芦脪脝碌脴脰路 */
-	uint32_t	sectorPosition; /* 脡脠脟酶脦禄脰脙 */
+	uint32_t	offsetAddress;  /* 偏移地址 */
+	uint32_t	sectorPosition; /* 扇区位置 */
 	uint32_t	sectorStartAddress;
 	if ( startAddress < FLASH_BASE || ( (startAddress + countToWrite) >= (FLASH_BASE + 1024 * FLASH_SIZE) ) )
 	{
-		return;                 /* 路脟路篓碌脴脰路 */
+		return;                 /* 非法地址 */
 	}
-	/* 陆芒脣酶脨麓卤拢禄陇 */
+	/* 解锁写保护 */
 	HAL_FLASH_Unlock();
 
-	/* 录脝脣茫脠楼碌么0X08000000潞贸碌脛脢碌录脢脝芦脪脝碌脴脰路 */
+	/* 计算去掉0X08000000后的实际偏移地址 */
 	offsetAddress = startAddress - FLASH_BASE;
-	/* 录脝脣茫脡脠脟酶碌脴脰路 */
+	/* 计算扇区地址 */
 	sectorPosition = offsetAddress / SECTOR_SIZE;
-	/* 露脭脫娄脡脠脟酶碌脛脢脳碌脴脰路 */
+	/* 对应扇区的首地址 */
 	sectorStartAddress = sectorPosition * SECTOR_SIZE + FLASH_BASE;
 
-	/* 虏脕鲁媒脮芒赂枚脡脠脟酶 */
+	/* 擦除这个扇区 */
   /* Fill EraseInit structure*/
   EraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES;
   EraseInitStruct.PageAddress = sectorStartAddress;
   EraseInitStruct.NbPages = 1;
-  printf("虏脕鲁媒脪鲁脢媒拢潞%d\r\n",EraseInitStruct.NbPages);
-  if ( HAL_FLASHEx_Erase( &EraseInitStruct, &PageError) == HAL_OK )      //脨麓脠毛脟掳脧脠陆酶脨脨脪鲁虏脕鲁媒
+  printf("擦除页数：%d\r\n",EraseInitStruct.NbPages);
+  if ( HAL_FLASHEx_Erase( &EraseInitStruct, &PageError) == HAL_OK )      //写入前先进行页擦除
   {
-    printf("虏脕鲁媒鲁脡鹿娄\r\n");
+    printf("擦除成功\r\n");
   } 
 	for ( i = 0; i < countToWrite; i++ )
 	{
@@ -63,44 +63,44 @@ void FLASH_WriteHalfWordData( uint32_t startAddress, uint16_t *writeData, uint16
 		startAddress = startAddress + 2;
 	}
   
-	HAL_FLASH_Lock(); /*脡脧脣酶脨麓卤拢禄陇 */
+	HAL_FLASH_Lock(); /*上锁写保护 */
 }
 /**
-  * @brief   脧貌flash脨麓脠毛脳脰脢媒戮脻拢篓32脦禄拢漏
-  * @param   startAddress 脨麓脠毛麓娄碌脛脝冒脢录碌脴脰路
-  * @param   *writeData 32脦禄脢媒戮脻脰赂脮毛卤盲脕驴
-  * @param   countToWrite 脨麓脠毛碌脛掳毛脳脰脢媒戮脻脢媒脕驴
+  * @brief   向flash写入字数据（32位）
+  * @param   startAddress 写入处的起始地址
+  * @param   *writeData 32位数据指针变量
+  * @param   countToWrite 写入的半字数据数量
   * @retval  x
   */
 void FLASH_WriteWordData( uint32_t startAddress, uint32_t *writeData, uint16_t countToWrite )
 {
 	uint16_t	i;
-	uint32_t	offsetAddress;  /* 脝芦脪脝碌脴脰路 */
-	uint32_t	sectorPosition; /* 脡脠脟酶脦禄脰脙 */
+	uint32_t	offsetAddress;  /* 偏移地址 */
+	uint32_t	sectorPosition; /* 扇区位置 */
 	uint32_t	sectorStartAddress;
 	if ( startAddress < FLASH_BASE || ( (startAddress + countToWrite) >= (FLASH_BASE + 1024 * FLASH_SIZE) ) )
 	{
-		return;                 /* 路脟路篓碌脴脰路 */
+		return;                 /* 非法地址 */
 	}
-	/* 陆芒脣酶脨麓卤拢禄陇 */
+	/* 解锁写保护 */
 	HAL_FLASH_Unlock();
 
-	/* 录脝脣茫脠楼碌么0X08000000潞贸碌脛脢碌录脢脝芦脪脝碌脴脰路 */
+	/* 计算去掉0X08000000后的实际偏移地址 */
 	offsetAddress = startAddress - FLASH_BASE;
-	/* 录脝脣茫脡脠脟酶碌脴脰路 */
+	/* 计算扇区地址 */
 	sectorPosition = offsetAddress / SECTOR_SIZE;
-	/* 露脭脫娄脡脠脟酶碌脛脢脳碌脴脰路 */
+	/* 对应扇区的首地址 */
 	sectorStartAddress = sectorPosition * SECTOR_SIZE + FLASH_BASE;
 
-	/* 虏脕鲁媒脮芒赂枚脡脠脟酶 */
+	/* 擦除这个扇区 */
   /* Fill EraseInit structure*/
   EraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES;
   EraseInitStruct.PageAddress = sectorStartAddress;
   EraseInitStruct.NbPages = 1;
-  printf("虏脕鲁媒脪鲁脢媒拢潞%d\r\n",EraseInitStruct.NbPages);
-  if ( HAL_FLASHEx_Erase( &EraseInitStruct, &PageError) == HAL_OK )      //脨麓脠毛脟掳脧脠陆酶脨脨脪鲁虏脕鲁媒
+  printf("擦除页数：%d\r\n",EraseInitStruct.NbPages);
+  if ( HAL_FLASHEx_Erase( &EraseInitStruct, &PageError) == HAL_OK )      //写入前先进行页擦除
   {
-    printf("虏脕鲁媒鲁脡鹿娄\r\n");
+    printf("擦除成功\r\n");
   } 
 	for ( i = 0; i < countToWrite; i++ )
 	{
@@ -108,15 +108,15 @@ void FLASH_WriteWordData( uint32_t startAddress, uint32_t *writeData, uint16_t c
 		startAddress = startAddress + 4;
 	}
   
-	HAL_FLASH_Lock(); /*脡脧脣酶脨麓卤拢禄陇 */
+	HAL_FLASH_Lock(); /*上锁写保护 */
 }
 
 /**
-  * @brief   脧貌flash脨麓脠毛脠媒赂枚赂隆碌茫脨脥脢媒戮脻
-  * @param   startAddress 脨麓脠毛麓娄碌脛脝冒脢录碌脴脰路
-  * @param   writeData1 赂隆碌茫脢媒戮脻1
-  * @param   writeData2 赂隆碌茫脢媒戮脻2
-  * @param   writeData3 赂隆碌茫脢媒戮脻3
+  * @brief   向flash写入三个浮点型数据
+  * @param   startAddress 写入处的起始地址
+  * @param   writeData1 浮点数据1
+  * @param   writeData2 浮点数据2
+  * @param   writeData3 浮点数据3
   * @retval  x
   */
 void FLASH_WriteThreeFloatData( uint32_t startAddress,  float writeData1, 
@@ -125,7 +125,7 @@ void FLASH_WriteThreeFloatData( uint32_t startAddress,  float writeData1,
 {
   uint32_t wData[3];
   
-  /* 麓媒脨麓脠毛碌脛赂隆碌茫脢媒戮脻脟驴脰脝脳陋脦陋脮没脨脦脢媒戮脻拢卢路陆卤茫脢媒戮脻脨麓脠毛 */
+  /* 待写入的浮点数据强制转为整形数据，方便数据写入 */
   wData[0] = *(uint32_t *)(&writeData1);
   wData[1] = *(uint32_t *)(&writeData2);
   wData[2] = *(uint32_t *)(&writeData3);
@@ -133,19 +133,19 @@ void FLASH_WriteThreeFloatData( uint32_t startAddress,  float writeData1,
   FLASH_WriteWordData(startAddress,&wData[0],3);
 }
 
-/*  脦麓脢鹿脫脙拢卢脭脻脢卤脝脕卤脦
+/*  未使用，暂时屏蔽
 
-//露脕脠隆脰赂露篓碌脴脰路碌脛掳毛脳脰(16脦禄脢媒戮脻)
+//读取指定地址的半字(16位数据)
 static uint16_t FLASH_ReadHalfWord(uint32_t address)
 {
   return *(__IO uint16_t*) address; 
 }
-//露脕脠隆脰赂露篓碌脴脰路碌脛脳脰(32脦禄脢媒戮脻)
+//读取指定地址的字(32位数据)
 static uint32_t FLASH_ReadWord(uint32_t address)
 {
   return *(__IO uint32_t*) address; 
 }
-//露脕脠隆脰赂露篓碌脴脰路碌脛掳毛脳脰(32脦禄脢媒戮脻)
+//读取指定地址的半字(32位数据)
 static float FLASH_ReadFloatWord(uint32_t address)
 {
   return *(__IO float*) address; 
@@ -153,10 +153,10 @@ static float FLASH_ReadFloatWord(uint32_t address)
 */
 
 /**
-  * @brief   麓脫flash露脕鲁枚赂隆碌茫脨脥脢媒戮脻
-  * @param   startAddress 露脕鲁枚麓娄碌脛脝冒脢录碌脴脰路
-  * @param   *readData 麓忙麓垄露脕鲁枚脢媒戮脻碌脛脰赂脮毛卤盲脕驴
-  * @param   countToRead 露脕鲁枚脢媒戮脻鲁陇露脠
+  * @brief   从flash读出浮点型数据
+  * @param   startAddress 读出处的起始地址
+  * @param   *readData 存储读出数据的指针变量
+  * @param   countToRead 读出数据长度
   * @retval  x
   */
 void FLASH_ReadFloatData(uint32_t startAddress,float *readData,uint16_t countToRead)

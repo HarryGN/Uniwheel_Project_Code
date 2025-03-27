@@ -5,26 +5,26 @@
 _ALL_PID all;
 
 /**
-  * @brief   麓忙麓垄pid驴脴脰脝脝梅虏脦脢媒 脠媒脨脨脦氓脕脨拢卢脙驴脨脨麓煤卤铆脪禄赂枚pid驴脴脰脝脝梅虏脦脢媒拢卢脙驴脕脨露脭脫娄虏脦脢媒 0.kp 1.ki 2.kd 3.禄媒路脰脧脼路霉  4.pid脢盲鲁枚脧脼路霉脰碌
+  * @brief   存储pid控制器参数 三行五列，每行代表一个pid控制器参数，每列对应参数 0.kp 1.ki 2.kd 3.积分限幅  4.pid输出限幅值
   * @param   x
   * @retval  x
   */
 const float  controller_parameter[3][5] =
 {
-  /* 0.kp 1.ki 2.kd 3.禄媒路脰脧脼路霉  4.pid脢盲鲁枚脧脼路霉脰碌 */
-    {7.5 , 0.0,  0,  550 , 2000 },                           //rol_angle     脛脷禄路陆脟露脠禄路       
-    {0.068 , 0.00005,  0.055,  500 , 2000 },                 //vel_encoder   脥芒禄路脣脵露脠禄路       
-    {26.5 ,  0.0,  0,  500 , 2000 },                         //gyro          脛脷禄路陆脟脣脵露脠禄路 
+  /* 0.kp 1.ki 2.kd 3.积分限幅  4.pid输出限幅值 */
+    {7.5 , 0.0,  0,  550 , 2000 },                           //rol_angle     内环角度环       
+    {0.068 , 0.00005,  0.055,  500 , 2000 },                 //vel_encoder   外环速度环       
+    {26.5 ,  0.0,  0,  500 , 2000 },                         //gyro          内环角速度环 
 		
-//    {7.5 , 0.0,  0,  550 , 2000 },                           //rol_angle     脛脷禄路陆脟露脠禄路       
-//    {0.068 , 0.00005,  0.055,  500 , 2000 },                 //vel_encoder   脥芒禄路脣脵露脠禄路       
-//    {26.5 ,  0.0,  0,  500 , 2000 },                         //gyro          脛脷禄路陆脟脣脵露脠禄路 
+//    {7.5 , 0.0,  0,  550 , 2000 },                           //rol_angle     内环角度环       
+//    {0.068 , 0.00005,  0.055,  500 , 2000 },                 //vel_encoder   外环速度环       
+//    {26.5 ,  0.0,  0,  500 , 2000 },                         //gyro          内环角速度环 
 };
 
 /**
-  * @brief   PID虏脦脢媒鲁玫脢录禄炉脜盲脰脙
-  * @param   *controller PID驴脴脰脝脝梅脰赂脮毛拢卢脰赂脧貌虏禄脥卢碌脛驴脴脰脝脝梅
-  * @param   label PID虏脦脢媒卤锚潞脜拢卢脩隆脭帽露脭脫娄驴脴脰脝脝梅碌脛虏脦脢媒脢媒脳茅卤锚潞脜
+  * @brief   PID参数初始化配置
+  * @param   *controller PID控制器指针，指向不同的控制器
+  * @param   label PID参数标号，选择对应控制器的参数数组标号
   * @retval  x
   */
 void pid_init(_PID *controller,uint8_t label)
@@ -35,7 +35,7 @@ void pid_init(_PID *controller,uint8_t label)
     controller->integral_max    = controller_parameter[label][3];         
     controller->out_max         = controller_parameter[label][4];               
 }
-//PID虏脦脢媒鲁玫脢录禄炉
+//PID参数初始化
 void all_pid_init(void)
 {
     pid_init(&all.rol_angle,0);
@@ -44,29 +44,29 @@ void all_pid_init(void)
 } 
 
 /**
-  * @brief   PID驴脴脰脝脝梅
-  * @param   *controller PID驴脴脰脝脝梅脰赂脮毛拢卢脰赂脧貌虏禄脥卢碌脛驴脴脰脝脝梅
-  * @retval  controller->out 戮颅鹿媒驴脴脰脝潞贸碌脛脢盲鲁枚脰碌
+  * @brief   PID控制器
+  * @param   *controller PID控制器指针，指向不同的控制器
+  * @retval  controller->out 经过控制后的输出值
   */
 float pid_controller(_PID *controller)
 {
-    controller->err_last = controller->err;                                                  //卤拢麓忙脡脧麓脦脝芦虏卯
-    controller->err = controller->expect - controller->feedback;                            //脝芦虏卯录脝脣茫
-    controller->integral += controller->ki * controller->err;                               //禄媒路脰  
-    //禄媒路脰脧脼路霉
+    controller->err_last = controller->err;                                                  //保存上次偏差
+    controller->err = controller->expect - controller->feedback;                            //偏差计算
+    controller->integral += controller->ki * controller->err;                               //积分  
+    //积分限幅
     if(controller->integral >  controller->integral_max)     controller->integral =  controller->integral_max;
     if(controller->integral < -controller->integral_max)     controller->integral = -controller->integral_max;
-    //pid脭脣脣茫
+    //pid运算
     controller->out =  controller->kp*controller->err + controller->integral + controller->kd*(controller->err-controller->err_last);
    
-    //脢盲鲁枚脧脼路霉
+    //输出限幅
     if(controller->out >  controller->out_max)   controller->out =  controller->out_max;
     if(controller->out < -controller->out_max)   controller->out = -controller->out_max;
     return controller->out;
 }
 /**
-  * @brief   PID驴脴脰脝脝梅禄媒路脰脧卯脟氓鲁媒
-  * @param   *controller PID驴脴脰脝脝梅脰赂脮毛拢卢脰赂脧貌虏禄脥卢碌脛驴脴脰脝脝梅
+  * @brief   PID控制器积分项清除
+  * @param   *controller PID控制器指针，指向不同的控制器
   * @retval  x
   */
 void clear_integral(_PID *controller)

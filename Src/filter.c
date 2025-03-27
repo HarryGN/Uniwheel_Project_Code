@@ -2,10 +2,10 @@
 
 
 /*
- * ÂºÂ¯ÃŠÃ½ÃƒÃ»Â£Âºbutterworth_lpf
- * ÃƒÃ¨ÃŠÃ¶  Â£ÂºÂ¶Ã¾Â½Ã—Â°ÃÃŒÃ˜ÃÃ–Ã‹Â¹Ã‚Ã‹Â²Â¨Ã†Ã·Ã”Â­ÃÃ
- * ÃŠÃ¤ÃˆÃ«  Â£Âºnow_inputÃŠÃ¤ÃˆÃ«ÃŠÃ½Â¾ÃÂ£Â¬ bufferÃ–ÃÂ¼Ã¤ÃŠÃ½Â¾ÃÂ»ÂºÂ´Ã¦Â£Â¬parameterÃ‚Ã‹Â²Â¨Â²ÃÃŠÃ½
- * Â·ÂµÂ»Ã˜  Â£ÂºÃ‚Ã‹Â²Â¨Ã–Â®ÂºÃ³ÂµÃ„ÃŠÃ½Â¾Ã     
+ * º¯ÊıÃû£ºbutterworth_lpf
+ * ÃèÊö  £º¶ş½×°ÍÌØÎÖË¹ÂË²¨Æ÷Ô­ĞÍ
+ * ÊäÈë  £ºnow_inputÊäÈëÊı¾İ£¬ bufferÖĞ¼äÊı¾İ»º´æ£¬parameterÂË²¨²ÎÊı
+ * ·µ»Ø  £ºÂË²¨Ö®ºóµÄÊı¾İ     
  */
 float butterworth_lpf(float now_input,_Butterworth_data *buffer, _Butterworth_parameter *parameter)
 {
@@ -17,10 +17,10 @@ float butterworth_lpf(float now_input,_Butterworth_data *buffer, _Butterworth_pa
                              + parameter->b[2] * buffer->input_data[0]
                              - parameter->a[1] * buffer->output_data[1]
                              - parameter->a[2] * buffer->output_data[0];
-    /* x(n) Â±Â£Â´Ã¦ */
+    /* x(n) ±£´æ */
     buffer->input_data[0] = buffer->input_data[1];
     buffer->input_data[1] = buffer->input_data[2];
-    /* y(n) Â±Â£Â´Ã¦ */
+    /* y(n) ±£´æ */
     buffer->output_data[0] = buffer->output_data[1];
     buffer->output_data[1] = buffer->output_data[2];
   

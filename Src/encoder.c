@@ -5,13 +5,13 @@
 _ENCODER_INFO encoderINFO = { 0 } ;
 
 /**
-  * @brief   卤脿脗毛脰碌麓娄脌铆拢卢陆芦脭颅卤戮路麓脳陋脫脡脳卯麓贸录玫脨隆碌脛脮媒脢媒脢媒戮脻脳陋卤盲脦陋麓脫0驴陋脢录录玫脨隆碌陆赂潞碌脛脢媒戮脻
-  * @param   *ecdData 卤脿脗毛脢媒戮脻脰赂脮毛卤盲脕驴
+  * @brief   编码值处理，将原本反转由最大减小的正数数据转变为从0开始减小到负的数据
+  * @param   *ecdData 编码数据指针变量
   * @retval  x
   */
 static void EncoderManage(int *ecdData)
 {
-  //卤脿脗毛脝梅路麓脧貌脢卤拢卢脳陋脦陋脫毛脮媒脧貌脢卤露脭脫娄碌脛赂潞脢媒
+  //编码器反向时，转为与正向时对应的负数
   if(*ecdData > FULL_ENCODER * 0.5f)
     *ecdData = *ecdData - FULL_ENCODER ; 
   else 
@@ -19,17 +19,17 @@ static void EncoderManage(int *ecdData)
 }
 
 /**
-  * @brief   露脕脠隆卤脿脗毛脝梅脳陋脣脵脰碌
+  * @brief   读取编码器转速值
   * @param   x
   * @retval  x
   */
 uint8_t readEncoderValue(void)
 {
-  encoderINFO.directionValue = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim2);      //露脕脠隆卤脿脗毛脳陋露炉碌脛路陆脧貌(脮媒鲁拢脳陋露炉虏脜脛脺脜脨露脧脮媒脠路拢卢麓脣麓娄脦麓脢鹿脫脙拢卢碌脥脣脵禄禄脧貌禄谩赂脡脠脜脢媒戮脻脜脨露脧)
-  encoderINFO.mainNumberValue = __HAL_TIM_GET_COUNTER(&htim2);              //露脕脠隆卤脿脗毛脰碌
-  __HAL_TIM_SET_COUNTER(&htim2,0);                                          //脟氓鲁镁卤脿脗毛脰碌
+  encoderINFO.directionValue = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim2);      //读取编码转动的方向(正常转动才能判断正确，此处未使用，低速换向会干扰数据判断)
+  encoderINFO.mainNumberValue = __HAL_TIM_GET_COUNTER(&htim2);              //读取编码值
+  __HAL_TIM_SET_COUNTER(&htim2,0);                                          //清楚编码值
   
-  EncoderManage(&encoderINFO.mainNumberValue) ;                             //陆芦碌莽禄煤路麓脧貌脳陋露炉碌脛卤脿脗毛脰碌脳陋脦陋赂潞碌脛脢媒戮脻
+  EncoderManage(&encoderINFO.mainNumberValue) ;                             //将电机反向转动的编码值转为负的数据
   
   return 0;
 }

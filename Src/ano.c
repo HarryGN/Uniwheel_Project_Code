@@ -6,17 +6,17 @@
 #include "encoder.h"
 #include "adc.h"
 #include "controller.h"
-dt_flag_t f;					                      //脨猫脪陋路垄脣脥脢媒戮脻碌脛卤锚脰戮 
-uint8_t data_to_send[100];                  //路垄脣脥脢媒戮脻禄潞麓忙
-uint8_t USART_RX_DATA[USART_RX_LEN];        //陆脫脢脮脢媒戮脻禄潞麓忙
+dt_flag_t f;					                      //需要发送数据的标志 
+uint8_t data_to_send[100];                  //发送数据缓存
+uint8_t USART_RX_DATA[USART_RX_LEN];        //接收数据缓存
 
-/* 陆芦麓贸脫脷脪禄赂枚脳脰陆脷碌脛脢媒戮脻虏冒路脰鲁脡露脿赂枚脳脰陆脷路垄脣脥 */
+/* 将大于一个字节的数据拆分成多个字节发送 */
 #define BYTE0(dwTemp)       ( *( (char *)(&dwTemp)    ) )
 #define BYTE1(dwTemp)       ( *( (char *)(&dwTemp) + 1) )
 #define BYTE2(dwTemp)       ( *( (char *)(&dwTemp) + 2) )
 #define BYTE3(dwTemp)       ( *( (char *)(&dwTemp) + 3) )
 
-/* 脧貌脛盲脙没脡脧脦禄禄煤路垄脣脥脳脣脤卢陆脟拢卢脣酶露篓脳麓脤卢 */
+/* 向匿名上位机发送姿态角，锁定状态 */
 void ANO_DT_Send_Status(void)
 {
 	uint8_t _cnt=0;
@@ -30,26 +30,26 @@ void ANO_DT_Send_Status(void)
 	data_to_send[_cnt++]=0x01;
 	data_to_send[_cnt++]=0;
 
-	_temp = (int)(att.rol*100);                     //潞谩鹿枚陆脟
+	_temp = (int)(att.rol*100);                     //横滚角
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);
     
-	_temp = (int)(att.pit*100);                     //赂漏脩枚陆脟    
+	_temp = (int)(att.pit*100);                     //俯仰角    
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);
     
-	_temp = (int)(att.yaw*100);                     //脝芦潞陆陆脟
+	_temp = (int)(att.yaw*100);                     //偏航角
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);
 
-	_temp2 = (int32_t)(100*99.99);       		        //赂脽露脠 
+	_temp2 = (int32_t)(100*99.99);       		        //高度 
 	data_to_send[_cnt++]=BYTE3(_temp2);
 	data_to_send[_cnt++]=BYTE2(_temp2);
 	data_to_send[_cnt++]=BYTE1(_temp2);
 	data_to_send[_cnt++]=BYTE0(_temp2);
 
-  data_to_send[_cnt++]=0x01;  					//路脡脨脨脛拢脢陆    01拢潞脳脣脤卢  02拢潞露篓赂脽  03拢潞露篓碌茫
-  data_to_send[_cnt++]=0x01;                      //脣酶露篓脳麓脤卢
+  data_to_send[_cnt++]=0x01;  					//飞行模式    01：姿态  02：定高  03：定点
+  data_to_send[_cnt++]=0x01;                      //锁定状态
 
 	data_to_send[3] = _cnt-4;
 	sum = 0;
@@ -57,9 +57,9 @@ void ANO_DT_Send_Status(void)
 		sum += data_to_send[i];
 	data_to_send[_cnt++]=sum;
     
-  Usart1_DMA_Sent(data_to_send,_cnt);   //路垄脣脥
+  Usart1_DMA_Sent(data_to_send,_cnt);   //发送
 }
-/* 脧貌脛盲脙没脡脧脦禄禄煤路垄脣脥麓芦赂脨脝梅脭颅脢录脢媒戮脻 */
+/* 向匿名上位机发送传感器原始数据 */
  void ANO_DT_Send_Senser(int16_t a_x,int16_t a_y,int16_t a_z,int16_t g_x,int16_t g_y,int16_t g_z,int16_t m_x,int16_t m_y,int16_t m_z)
 {
   uint8_t _cnt=0;
@@ -108,9 +108,9 @@ void ANO_DT_Send_Status(void)
     sum += data_to_send[i];
   data_to_send[_cnt++] = sum;
     
-  Usart1_DMA_Sent(data_to_send,_cnt);   //路垄脣脥
+  Usart1_DMA_Sent(data_to_send,_cnt);   //发送
 }
-/* 脪拢驴脴脝梅脥篓碌脌脢媒戮脻 */
+/* 遥控器通道数据 */
 void ANO_DT_Send_RCData(uint16_t thr,uint16_t yaw,uint16_t rol,uint16_t pit,uint16_t aux1,uint16_t aux2,uint16_t aux3,uint16_t aux4,uint16_t aux5,uint16_t aux6)
 {
   uint8_t _cnt=0;
@@ -150,9 +150,9 @@ void ANO_DT_Send_RCData(uint16_t thr,uint16_t yaw,uint16_t rol,uint16_t pit,uint
     sum += data_to_send[i];
   data_to_send[_cnt++]=sum;
 
-  Usart1_DMA_Sent(data_to_send,_cnt);   //路垄脣脥
+  Usart1_DMA_Sent(data_to_send,_cnt);   //发送
 }
-/* 碌莽脩鹿碌莽脕梅脢媒戮脻路垄脣脥脰脕脛盲脙没脡脧脦禄禄煤 */ 
+/* 电压电流数据发送至匿名上位机 */ 
 void ANO_DT_Send_Power(float votage, float current)
 {
 	uint8_t _cnt=0;
@@ -177,9 +177,9 @@ void ANO_DT_Send_Power(float votage, float current)
 		sum += data_to_send[i];
 	data_to_send[_cnt++]=sum;
 	
-  Usart1_DMA_Sent(data_to_send,_cnt);   //路垄脣脥
+  Usart1_DMA_Sent(data_to_send,_cnt);   //发送
 }
-//脫脙禄搂脳脭露篓脪氓脢媒戮脻路垄脣脥拢潞1-5拢潞int16t脌脿脨脥脢媒戮脻     6-10拢潞float脌脿脨脥脢媒戮脻
+//用户自定义数据发送：1-5：int16t类型数据     6-10：float类型数据
 void ANO_DT_Send_User(int16_t user1,int16_t user2,int16_t user3,int16_t user4,int16_t user5,
                       float user6, float user7, float user8, float user9, float user10,
                       float user11,float user12,float user13,float user14,float user15)
@@ -195,7 +195,7 @@ void ANO_DT_Send_User(int16_t user1,int16_t user2,int16_t user3,int16_t user4,in
   data_to_send[_cnt++]=0xF1;
   data_to_send[_cnt++]=0;
   
-  //1-5  int16t脌脿脨脥脢媒戮脻
+  //1-5  int16t类型数据
   _temp = user1;    
   data_to_send[_cnt++]=BYTE1(_temp);
   data_to_send[_cnt++]=BYTE0(_temp);
@@ -213,7 +213,7 @@ void ANO_DT_Send_User(int16_t user1,int16_t user2,int16_t user3,int16_t user4,in
   data_to_send[_cnt++]=BYTE1(_temp);
   data_to_send[_cnt++]=BYTE0(_temp);
 
-  //6-10 拢潞float脌脿脨脥脢媒戮脻
+  //6-10 ：float类型数据
   _temp_f = user6;
   data_to_send[_cnt++]=BYTE3(_temp_f);
   data_to_send[_cnt++]=BYTE2(_temp_f);
@@ -273,24 +273,24 @@ void ANO_DT_Send_User(int16_t user1,int16_t user2,int16_t user3,int16_t user4,in
       sum += data_to_send[i];
   data_to_send[_cnt++] = sum;
   
-  Usart1_DMA_Sent(data_to_send,_cnt);   //路垄脣脥
+  Usart1_DMA_Sent(data_to_send,_cnt);   //发送
 }
 /*
-脭脷脡脧脦禄禄煤露脭脧脗脦禄禄煤陆酶脨脨虏脵脳梅脢卤拢卢脧脗脦禄禄煤脳枚鲁枚露脭脫娄碌脛路麓脌隆脨脜脧垄
+在上位机对下位机进行操作时，下位机做出对应的反馈信息
  MSG_ID:                 MSG_DATA:
-01:录脫脣脵露脠               01:脨拢脳录鲁脡鹿娄
-02:脥脫脗脻脪脟               E1:脨拢脳录脢搂掳脺
-03:脗脼脜脤                 31:脡猫脰脙鲁脡鹿娄
-30:脦脼脧脽露篓脦禄脛拢驴茅         32:脡猫脰脙鲁脡鹿娄2
-40:脛盲脙没脢媒麓芦             A1:禄脰赂麓脛卢脠脧鲁脡鹿娄
+01:加速度               01:校准成功
+02:陀螺仪               E1:校准失败
+03:罗盘                 31:设置成功
+30:无线定位模块         32:设置成功2
+40:匿名数传             A1:恢复默认成功
  */
 static void ANO_DT_Send_MSG(uint8_t MSG_ID, uint8_t MSG_DATA)
 {
 	data_to_send[0]=0xAA;
 	data_to_send[1]=0xAA;
 	data_to_send[2]=0xEE;
-	data_to_send[3]=2;                      //鲁陇露脠
-	data_to_send[4]=MSG_ID;                 //鹿娄脛脺脳脰
+	data_to_send[3]=2;                      //长度
+	data_to_send[4]=MSG_ID;                 //功能字
 	data_to_send[5]=MSG_DATA;
 	
 	uint8_t sum = 0;
@@ -298,10 +298,10 @@ static void ANO_DT_Send_MSG(uint8_t MSG_ID, uint8_t MSG_DATA)
 		sum += data_to_send[i];
 	data_to_send[6]=sum;
 
-  Usart1_DMA_Sent(data_to_send,7);   //路垄脣脥
+  Usart1_DMA_Sent(data_to_send,7);   //发送
 }
 
-/* 路垄脣脥脢媒戮脻 */
+/* 发送数据 */
 void ANO_DMA_SEND_DATA(void)
 {
   static uint8_t ANO_debug_cnt = 0;
@@ -335,7 +335,7 @@ void ANO_DMA_SEND_DATA(void)
 //    if(f.send_pid1)
 //    {
 //      f.send_pid1 = 0;
-//      //脧貌脡脧脦禄禄煤路垄脣脥脛脷禄路脣脵露脠禄路PID虏脦脢媒脰碌
+//      //向上位机发送内环速度环PID参数值
 //      ANO_DT_Send_PID(1,  vel.kp*0.1f,
 //                          vel.ki,
 //                          vel.kd,
@@ -349,7 +349,7 @@ void ANO_DMA_SEND_DATA(void)
 //    if(f.send_pid2)
 //    {
 //      f.send_pid2 = 0;
-//      //脧貌脡脧脦禄禄煤路垄脣脥脥芒禄路陆脟露脠禄路PID虏脦脢媒脰碌
+//      //向上位机发送外环角度环PID参数值
 //      ANO_DT_Send_PID(2,  bal.kp*0.1f,
 //                          bal.ki,
 //                          bal.kd,
@@ -360,12 +360,12 @@ void ANO_DMA_SEND_DATA(void)
 //                          2.2f,
 //                          1.1f);   
 //    }
-    if(CalGyro.success==1)                          //路碌禄脴脨拢脳录鲁脡鹿娄脨脜脧垄赂酶脡脧脦禄禄煤
+    if(CalGyro.success==1)                          //返回校准成功信息给上位机
     {
       CalGyro.success = 0;
       ANO_DT_Send_MSG(SENSOR_GYRO,CAL_SUCCESS);
     }
-    else if(CalGyro.success==2)                     //路麓脌隆脨拢脳录脢搂掳脺脨脜脧垄赂酶脡脧脦禄禄煤
+    else if(CalGyro.success==2)                     //反馈校准失败信息给上位机
     {
       CalGyro.success = 0;
       ANO_DT_Send_MSG(SENSOR_GYRO,CAL_SUCCESS);
@@ -383,8 +383,8 @@ static void ANO_DT_Send_Check(uint8_t head, uint8_t check_sum)
 	data_to_send[0]=0xAA;
 	data_to_send[1]=0xAA;
 	data_to_send[2]=0xEF;
-	data_to_send[3]=2;                  //鲁陇露脠
-	data_to_send[4]=head;               //鹿娄脛脺脳脰
+	data_to_send[3]=2;                  //长度
+	data_to_send[4]=head;               //功能字
 	data_to_send[5]=check_sum;
 	
 	uint8_t sum = 0;
@@ -392,12 +392,12 @@ static void ANO_DT_Send_Check(uint8_t head, uint8_t check_sum)
 		sum += data_to_send[i];
 	data_to_send[6]=sum;
 
-  Usart1_DMA_Sent(data_to_send,7);   //路垄脣脥
+  Usart1_DMA_Sent(data_to_send,7);   //发送
 }
 
-//Data_Receive_Anl潞炉脢媒脢脟脨颅脪茅脢媒戮脻陆芒脦枚潞炉脢媒拢卢潞炉脢媒虏脦脢媒脢脟路没潞脧脨颅脪茅赂帽脢陆碌脛脪禄赂枚脢媒戮脻脰隆拢卢赂脙潞炉脢媒禄谩脢脳脧脠露脭脨颅脪茅脢媒戮脻陆酶脨脨脨拢脩茅
-//脨拢脩茅脥篓鹿媒潞贸露脭脢媒戮脻陆酶脨脨陆芒脦枚拢卢脢碌脧脰脧脿脫娄鹿娄脛脺
-//麓脣潞炉脢媒驴脡脪脭虏禄脫脙脫脙禄搂脳脭脨脨碌梅脫脙拢卢脫脡潞炉脢媒Data_Receive_Prepare脳脭露炉碌梅脫脙
+//Data_Receive_Anl函数是协议数据解析函数，函数参数是符合协议格式的一个数据帧，该函数会首先对协议数据进行校验
+//校验通过后对数据进行解析，实现相应功能
+//此函数可以不用用户自行调用，由函数Data_Receive_Prepare自动调用
 void ANO_DT_Data_Receive_Anl(uint8_t *data_buf,uint8_t num)
 {  
 	uint8_t sum = 0;
@@ -405,22 +405,22 @@ void ANO_DT_Data_Receive_Anl(uint8_t *data_buf,uint8_t num)
   {
     sum += *(data_buf+i);        
   }
-	if(!(sum==*(data_buf+num-1)))	                //脜脨露脧sum	
+	if(!(sum==*(data_buf+num-1)))	                //判断sum	
     return;		
-	if(!(*(data_buf)==0xAA && *(data_buf+1)==0xAF))	//脜脨露脧脰隆脥路	
+	if(!(*(data_buf)==0xAA && *(data_buf+1)==0xAF))	//判断帧头	
     return;		
 	
-	if(*(data_buf+2)==0X01)                         //鹿娄脛脺脳脰01
+	if(*(data_buf+2)==0X01)                         //功能字01
 	{
 //        pu8printf("buf:",data_buf,num,1);
-		if(*(data_buf+4)==0X01)                     //ACC脨拢脳录
+		if(*(data_buf+4)==0X01)                     //ACC校准
     {
     }            
 //			mpu6050.Acc_CALIBRATE = 1;
-		if(*(data_buf+4)==0X02)                     //GYRO脨拢脳录
+		if(*(data_buf+4)==0X02)                     //GYRO校准
     {
-      CalGyro.flag = 1;                       //陆脫脢脮碌陆脨拢脳录脰赂脕卯潞贸脰脙脦陋1    
-//            _led.sta = 2;                           //脛卢脠脧脦脼虏脵脳梅
+      CalGyro.flag = 1;                       //接收到校准指令后置为1    
+//            _led.sta = 2;                           //默认无操作
     }
 		if(*(data_buf+4)==0X03)
 		{
@@ -428,9 +428,9 @@ void ANO_DT_Data_Receive_Anl(uint8_t *data_buf,uint8_t num)
 //			mpu6050.Gyro_CALIBRATE = 1;			
 		}
 	}
-	if(*(data_buf+2)==0X02)                         //鹿娄脛脺脳脰02
+	if(*(data_buf+2)==0X02)                         //功能字02
 	{
-		if(*(data_buf+4)==0X01)                     //脡脧脦禄禄煤露脕脠隆pid脟毛脟贸
+		if(*(data_buf+4)==0X01)                     //上位机读取pid请求
 		{
 			f.send_pid1 = 1;
 			f.send_pid2 = 1;
@@ -440,22 +440,22 @@ void ANO_DT_Data_Receive_Anl(uint8_t *data_buf,uint8_t num)
 			f.send_pid6 = 1;
 //            ANO_DT_Send_Check(*(data_buf+2),sum);
 		}
-		if(*(data_buf+4)==0X02)     //露脕脠隆路脡脨脨脛拢脢陆脡猫脰脙脟毛脟贸
+		if(*(data_buf+4)==0X02)     //读取飞行模式设置请求
 		{
 		}
-		if(*(data_buf+4)==0XA0)		//露脕脠隆掳忙卤戮脨脜脧垄
+		if(*(data_buf+4)==0XA0)		//读取版本信息
 		{
 			f.send_version = 1;
 		}
-		if(*(data_buf+4)==0XA1)		//禄脰赂麓脛卢脠脧虏脦脢媒
+		if(*(data_buf+4)==0XA1)		//恢复默认参数
 		{
-//            PidToFactorySetup();    //虏脦脢媒赂鲁脰碌
+//            PidToFactorySetup();    //参数赋值
       ANO_DT_Send_Check(*(data_buf+2),sum);
-            /* 陆芦鲁枚鲁搂脛脷禄路PID虏脦脢媒脨麓脠毛flash */
+            /* 将出厂内环PID参数写入flash */
 //            FlashWriteNineFloat(PID_Group1_ADDRESS, WriteFlashVel.kp,WriteFlashVel.ki,WriteFlashVel.kd,
 //                                                    WriteFlashBal.kp,WriteFlashBal.ki,WriteFlashBal.kd,
 //                                                    WriteFlashTur.kp,WriteFlashTur.ki,WriteFlashTur.kd);
-            /* 陆芦鲁枚鲁搂脥芒禄路PID虏脦脢媒脨麓脠毛flash */
+            /* 将出厂外环PID参数写入flash */
 //            FlashWriteNineFloat(PID_Group2_ADDRESS, all.rol_angle.kp,all.rol_angle.ki,all.rol_angle.kd,
 //                                                    all.pit_angle.kp,all.pit_angle.ki,all.pit_angle.kd,
 //                                                    all.yaw_angle.kp,all.yaw_angle.ki,all.yaw_angle.kd);
@@ -463,9 +463,9 @@ void ANO_DT_Data_Receive_Anl(uint8_t *data_buf,uint8_t num)
 //            FlashWriteByte(PID_FLAG_ADDRESS,flash_flag.pid);
 		}
 	}
-	if(*(data_buf+2)==0X10)         //脡猫脰脙PID脳茅1
+	if(*(data_buf+2)==0X10)         //设置PID组1
   {
-        /* PID脛脷禄路脣脵露脠禄路虏脦脢媒赂鲁脰碌 */
+        /* PID内环速度环参数赋值 */
 //        all.rol_gyro.kp = 0.001*( (vs16)(*(data_buf+4)<<8)|*(data_buf+5) );
 //        all.rol_gyro.ki = 0.001*( (vs16)(*(data_buf+6)<<8)|*(data_buf+7) );
 //        all.rol_gyro.kd = 0.001*( (vs16)(*(data_buf+8)<<8)|*(data_buf+9) );
@@ -476,17 +476,17 @@ void ANO_DT_Data_Receive_Anl(uint8_t *data_buf,uint8_t num)
 //        all.yaw_gyro.ki = 0.001*( (vs16)(*(data_buf+18)<<8)|*(data_buf+19) );
 //        all.yaw_gyro.kd = 0.001*( (vs16)(*(data_buf+20)<<8)|*(data_buf+21) );
     ANO_DT_Send_Check(*(data_buf+2),sum);
-        /* 陆芦虏脦脢媒脨麓脠毛flash脰脨麓忙麓垄 */
+        /* 将参数写入flash中存储 */
 //        FlashWriteNineFloat(PID_Group1_ADDRESS, all.rol_gyro.kp,all.rol_gyro.ki,all.rol_gyro.kd,
 //                                                all.pit_gyro.kp,all.pit_gyro.ki,all.pit_gyro.kd,
 //                                                all.yaw_gyro.kp,all.yaw_gyro.ki,all.yaw_gyro.kd);
 //        flash_flag.pid = 1;
-//        /* 陆芦卤锚脰戮脦禄脨麓脠毛脛脷麓忙 */
+//        /* 将标志位写入内存 */
 //        FlashWriteByte(PID_FLAG_ADDRESS,flash_flag.pid);
   }
-  if(*(data_buf+2)==0X11)         //脡猫脰脙PID脳茅2
+  if(*(data_buf+2)==0X11)         //设置PID组2
   {
-        /* PID脥芒禄路陆脟露脠禄路虏脦脢媒赂鲁脰碌 */
+        /* PID外环角度环参数赋值 */
 //        all.rol_angle.kp = 0.001*( (vs16)(*(data_buf+4)<<8)|*(data_buf+5) );
 //        all.rol_angle.ki = 0.001*( (vs16)(*(data_buf+6)<<8)|*(data_buf+7) );
 //        all.rol_angle.kd = 0.001*( (vs16)(*(data_buf+8)<<8)|*(data_buf+9) );
@@ -497,35 +497,35 @@ void ANO_DT_Data_Receive_Anl(uint8_t *data_buf,uint8_t num)
 //        all.yaw_angle.ki = 0.001*( (vs16)(*(data_buf+18)<<8)|*(data_buf+19) );
 //        all.yaw_angle.kd = 0.001*( (vs16)(*(data_buf+20)<<8)|*(data_buf+21) );
         ANO_DT_Send_Check(*(data_buf+2),sum);
-        /* 陆芦虏脦脢媒脨麓脠毛flash脰脨麓忙麓垄 */
+        /* 将参数写入flash中存储 */
 //        FlashWriteNineFloat(PID_Group2_ADDRESS, all.rol_angle.kp,all.rol_angle.ki,all.rol_angle.kd,
 //                                                all.pit_angle.kp,all.pit_angle.ki,all.pit_angle.kd,
 //                                                all.yaw_angle.kp,all.yaw_angle.ki,all.yaw_angle.kd);
 //        flash_flag.pid = 1;
-//        /* 陆芦卤锚脰戮脦禄脨麓脠毛脛脷麓忙 */
+//        /* 将标志位写入内存 */
 //        FlashWriteByte(PID_FLAG_ADDRESS,flash_flag.pid);
   }
-  if(*(data_buf+2)==0X12)         //脡猫脰脙PID脳茅3
+  if(*(data_buf+2)==0X12)         //设置PID组3
   {	
     ANO_DT_Send_Check(*(data_buf+2),sum);
   }
-	if(*(data_buf+2)==0X13)         //脡猫脰脙PID脳茅4
+	if(*(data_buf+2)==0X13)         //设置PID组4
 	{
 		ANO_DT_Send_Check(*(data_buf+2),sum);
 	}
-	if(*(data_buf+2)==0X14)         //脡猫脰脙PID脳茅5
+	if(*(data_buf+2)==0X14)         //设置PID组5
 	{
 		ANO_DT_Send_Check(*(data_buf+2),sum);
 	}
-	if(*(data_buf+2)==0X15)         //脡猫脰脙PID脳茅6
+	if(*(data_buf+2)==0X15)         //设置PID组6
 	{
 		ANO_DT_Send_Check(*(data_buf+2),sum);
 	}
 }
 
-//Data_Receive_Prepare潞炉脢媒脢脟脨颅脪茅脭陇陆芒脦枚拢卢赂霉戮脻脨颅脪茅碌脛赂帽脢陆拢卢陆芦脢脮碌陆碌脛脢媒戮脻陆酶脨脨脪禄麓脦赂帽脢陆脨脭陆芒脦枚拢卢赂帽脢陆脮媒脠路碌脛禄掳脭脵陆酶脨脨脢媒戮脻陆芒脦枚
-//脪脝脰虏脢卤拢卢麓脣潞炉脢媒脫娄脫脡脫脙禄搂赂霉戮脻脳脭脡铆脢鹿脫脙碌脛脥篓脨脜路陆脢陆脳脭脨脨碌梅脫脙拢卢卤脠脠莽麓庐驴脷脙驴脢脮碌陆脪禄脳脰陆脷脢媒戮脻拢卢脭貌碌梅脫脙麓脣潞炉脢媒脪禄麓脦
-//麓脣潞炉脢媒陆芒脦枚鲁枚路没潞脧赂帽脢陆碌脛脢媒戮脻脰隆潞贸拢卢禄谩脳脭脨脨碌梅脫脙脢媒戮脻陆芒脦枚潞炉脢媒
+//Data_Receive_Prepare函数是协议预解析，根据协议的格式，将收到的数据进行一次格式性解析，格式正确的话再进行数据解析
+//移植时，此函数应由用户根据自身使用的通信方式自行调用，比如串口每收到一字节数据，则调用此函数一次
+//此函数解析出符合格式的数据帧后，会自行调用数据解析函数
 void ANO_DT_Data_Receive_Prepare(uint8_t data)
 {
 	static uint8_t RxBuffer[50];
