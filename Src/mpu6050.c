@@ -8,18 +8,18 @@
 #include "flash.h"
 #include "imath.h"
 
-S16_XYZ  acc_raw = {0};                  //¼ÓËÙ¶È¼ÆÔ­Ê¼Êý¾Ý´æ´¢
-S16_XYZ  gyro_raw = {0};                 //ÍÓÂÝÒÇÔ­Ê¼Êý¾Ý´æ´¢
-SI_F_XYZ  gyro_raw_cal = {0};                 //ÍÓÂÝÒÇÓÃÓÚÐ£×¼µÄÔ­Ê¼Êý¾Ý´æ´¢
+S16_XYZ  acc_raw = {0};                  //ï¿½ï¿½ï¿½Ù¶È¼ï¿½Ô­Ê¼ï¿½ï¿½ï¿½Ý´æ´¢
+S16_XYZ  gyro_raw = {0};                 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½Ý´æ´¢
+SI_F_XYZ  gyro_raw_cal = {0};                 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð£×¼ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½Ý´æ´¢
 SI_F_XYZ acc_raw_f = {0};
 SI_F_XYZ gyro_raw_f = {0};
 SI_F_XYZ acc_att_lpf = {0};
 SI_F_XYZ gyro_lpf = {0};
-SI_F_XYZ gyro_offset = {0,0,0} ;         //ÍÓÂÝÒÇÁãÆ«Êý¾Ý´æ´¢
+SI_F_XYZ gyro_offset = {0,0,0} ;         //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½Ý´æ´¢
 _Mpu6050_data Mpu = {0};
-_GYRO_CAL CalGyro = {0};                 //ÍÓÂÝÒÇÐ£×¼Ïà¹Ø±äÁ¿´æ´¢
+_GYRO_CAL CalGyro = {0};                 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð£×¼ï¿½ï¿½Ø±ï¿½ï¿½ï¿½ï¿½æ´¢
 
-/* Ó²¼þiic²¿·Ö£¨Êµ¼ÊÊ¹ÓÃÈí¼þÄ£Äâiic£¬¿É²»½øÐÐ²é¿´£© BEGIN */
+/* Ó²ï¿½ï¿½iicï¿½ï¿½ï¿½Ö£ï¿½Êµï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½iicï¿½ï¿½ï¿½É²ï¿½ï¿½ï¿½ï¿½Ð²é¿´ï¿½ï¿½ BEGIN */
 static void I2Cx_Error(uint8_t Addr)
 {
 	HAL_I2C_DeInit(&hi2c1);
@@ -30,19 +30,19 @@ int Sensors_I2C_WriteRegister(unsigned char slave_addr,unsigned char reg_addr,un
 {
 	HAL_StatusTypeDef status = HAL_OK;
 	status = HAL_I2C_Mem_Write(&hi2c1, slave_addr, reg_addr, I2C_MEMADD_SIZE_8BIT,data_ptr, len,I2Cx_FLAG_TIMEOUT); 
-	/* ¼ì²éÍ¨Ñ¶×´Ì¬ */
+	/* ï¿½ï¿½ï¿½Í¨Ñ¶×´Ì¬ */
 	if(status != HAL_OK)
 	{
-		/* ×ÜÏß³ö´í´¦Àí */
+		/* ï¿½ï¿½ï¿½ß³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 		I2Cx_Error(slave_addr);
 	}
 	while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY)
 	{
 		
 	}
-	/* ¼ì²éSENSORÊÇ·ñ¾ÍÐ÷½øÐÐÏÂÒ»´Î¶ÁÐ´²Ù×÷ */
+	/* ï¿½ï¿½ï¿½SENSORï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Î¶ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ */
 	while (HAL_I2C_IsDeviceReady(&hi2c1, slave_addr, I2Cx_FLAG_TIMEOUT, I2Cx_FLAG_TIMEOUT) == HAL_TIMEOUT);
-	/* µÈ´ý´«Êä½áÊø */
+	/* ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 	while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY)
 	{
 		
@@ -54,31 +54,31 @@ int Sensors_I2C_ReadRegister(unsigned char slave_addr,unsigned char reg_addr,uns
 {
 	HAL_StatusTypeDef status = HAL_OK;
 	status =HAL_I2C_Mem_Read(&hi2c1,slave_addr,reg_addr,I2C_MEMADD_SIZE_8BIT,data_ptr,len,I2Cx_FLAG_TIMEOUT);    
-	/* ¼ì²éÍ¨Ñ¶×´Ì¬ */
+	/* ï¿½ï¿½ï¿½Í¨Ñ¶×´Ì¬ */
 	if(status != HAL_OK)
 	{
-		/* ×ÜÏß³ö´í´¦Àí */
+		/* ï¿½ï¿½ï¿½ß³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 		I2Cx_Error(slave_addr);
 	}
 	while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY)
 	{
 		
 	}
-	/* ¼ì²éSENSORÊÇ·ñ¾ÍÐ÷½øÐÐÏÂÒ»´Î¶ÁÐ´²Ù×÷ */
+	/* ï¿½ï¿½ï¿½SENSORï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Î¶ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ */
 	while (HAL_I2C_IsDeviceReady(&hi2c1, slave_addr, I2Cx_FLAG_TIMEOUT, I2Cx_FLAG_TIMEOUT) == HAL_TIMEOUT);
-	/* µÈ´ý´«Êä½áÊø */
+	/* ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 	while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY)
 	{
 		
 	}
 	return status;
 }
-/* Ó²¼þiic²¿·Ö END */
+/* Ó²ï¿½ï¿½iicï¿½ï¿½ï¿½ï¿½ END */
 
 /**
-  * @brief   Ð´Êý¾Ýµ½MPU6050¼Ä´æÆ÷
-  * @param   reg_add:¼Ä´æÆ÷µØÖ·
-	* @param	 reg_data:ÒªÐ´ÈëµÄÊý¾Ý
+  * @brief   Ð´ï¿½ï¿½ï¿½Ýµï¿½MPU6050ï¿½Ä´ï¿½ï¿½ï¿½
+  * @param   reg_add:ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Ö·
+	* @param	 reg_data:ÒªÐ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   * @retval  
   */
 void MPU6050_WriteReg(uint8_t reg_add,uint8_t reg_dat)
@@ -87,10 +87,10 @@ void MPU6050_WriteReg(uint8_t reg_add,uint8_t reg_dat)
 }
 
 /**
-  * @brief   ´ÓMPU6050¼Ä´æÆ÷¶ÁÈ¡Êý¾Ý
-  * @param   reg_add:¼Ä´æÆ÷µØÖ·
-	* @param	 Read£º´æ´¢Êý¾ÝµÄ»º³åÇø
-	* @param	 num£ºÒª¶ÁÈ¡µÄÊý¾ÝÁ¿
+  * @brief   ï¿½ï¿½MPU6050ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½
+  * @param   reg_add:ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Ö·
+	* @param	 Readï¿½ï¿½ï¿½æ´¢ï¿½ï¿½ï¿½ÝµÄ»ï¿½ï¿½ï¿½ï¿½ï¿½
+	* @param	 numï¿½ï¿½Òªï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   * @retval  x
   */
 void MPU6050_ReadData(uint8_t reg_add,unsigned char* Read,uint8_t num)
@@ -103,38 +103,38 @@ void MPU6050_ReadData(uint8_t reg_add,unsigned char* Read,uint8_t num)
 }
 
 /*
- * º¯ÊýÃû£ºmpu6050_init
- * ÃèÊö  £º³õÊ¼»¯MOU6050ÅäÖÃ
- * ÊäÈë  £ºx    
- * ·µ»Ø  £ºx 
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mpu6050_init
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½MOU6050ï¿½ï¿½ï¿½ï¿½
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½x    
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½x 
  */
 void mpu6050_init(void)
 {  
   HAL_Delay(100);  
 	MPU6050_WriteReg(PWR_MGMT_1, 0x80);	          	
   HAL_Delay(100);  
-	MPU6050_WriteReg(PWR_MGMT_1, 0x00);           //»½ÐÑmpu		
-  /* when DLPF is disabled( DLPF_CFG=0 or 7),ÍÓÂÝÒÇÊä³öÆµÂÊ = 8kHz; 
-     when DLPFis enabled,ÍÓÂÝÒÇÊä³öÆµÂÊ = 1KHz 
-     fs(²ÉÑùÆµÂÊ) = ÍÓÂÝÒÇÊä³öÆµÂÊ / (1 + SMPLRT_DIV)*/	
+	MPU6050_WriteReg(PWR_MGMT_1, 0x00);           //ï¿½ï¿½ï¿½ï¿½mpu		
+  /* when DLPF is disabled( DLPF_CFG=0 or 7),ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ = 8kHz; 
+     when DLPFis enabled,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ = 1KHz 
+     fs(ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½) = ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ / (1 + SMPLRT_DIV)*/	
 	MPU6050_WriteReg(SMPLRT_DIV, 0x00);		        //sample rate.  Fsample= 1Khz/(<this value>+1) = 1000Hz	
-	MPU6050_WriteReg(MPU_CONFIG, 0x03);           //ÄÚ²¿µÍÍ¨  acc:44hz	gyro:42hz
-	MPU6050_WriteReg(GYRO_CONFIG, 0x18);			    // gyro scale  £º+-2000¡ã/s
-	MPU6050_WriteReg(ACCEL_CONFIG, 0x10);			    // Accel scale £º+-8g (65536/16=4096 LSB/g)    
+	MPU6050_WriteReg(MPU_CONFIG, 0x03);           //ï¿½Ú²ï¿½ï¿½ï¿½Í¨  acc:44hz	gyro:42hz
+	MPU6050_WriteReg(GYRO_CONFIG, 0x18);			    // gyro scale  ï¿½ï¿½+-2000ï¿½ï¿½/s
+	MPU6050_WriteReg(ACCEL_CONFIG, 0x10);			    // Accel scale ï¿½ï¿½+-8g (65536/16=4096 LSB/g)    
   HAL_Delay(100);  	
 }
 /**
-  * @brief   ¶ÁÈ¡MPU6050µÄID
+  * @brief   ï¿½ï¿½È¡MPU6050ï¿½ï¿½ID
   * @param   x
-  * @retval  Õý³£·µ»Ø1£¬Òì³£·µ»Ø0
+  * @retval  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½ï¿½ì³£ï¿½ï¿½ï¿½ï¿½0
   */
 uint8_t MPU6050ReadID(void)
 {
 	unsigned char Re = 0;
-  MPU6050_ReadData(WHO_AM_I,&Re,1);    //¶ÁÆ÷¼þµØÖ·
+  MPU6050_ReadData(WHO_AM_I,&Re,1);    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·
 	if(Re != 0x68 && Re != 0x98)
 	{
-		printf("MPU6050 dectected error!\r\n¼ì²â²»µ½MPU6050Ä£¿é£¬Çë¼ì²éÄ£¿éÓë¿ª·¢°åµÄ½ÓÏß");
+		printf("MPU6050 dectected error!\r\nï¿½ï¿½â²»ï¿½ï¿½MPU6050Ä£ï¿½é£¬ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ë¿ªï¿½ï¿½ï¿½ï¿½Ä½ï¿½ï¿½ï¿½");
 		return 0;
 	}
 	else
@@ -145,8 +145,8 @@ uint8_t MPU6050ReadID(void)
 }
 
 /**
-  * @brief   ¶ÁÈ¡MPU6050µÄ¼ÓËÙ¶ÈÊý¾Ý
-  * @param   *accData ÈýÖá¼ÓËÙ¶ÈÊý¾ÝÖ¸Õë±äÁ¿
+  * @brief   ï¿½ï¿½È¡MPU6050ï¿½Ä¼ï¿½ï¿½Ù¶ï¿½ï¿½ï¿½ï¿½ï¿½
+  * @param   *accData ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½
   * @retval  x
   */
 void MPU6050ReadAcc(S16_XYZ *accData)
@@ -159,8 +159,8 @@ void MPU6050ReadAcc(S16_XYZ *accData)
 }
 
 /**
-  * @brief   ¶ÁÈ¡MPU6050µÄ½Ç¼ÓËÙ¶ÈÊý¾Ý
-  * @param   *gyroData ÈýÖáÍÓÂÝÒÇÖ¸Õë±äÁ¿
+  * @brief   ï¿½ï¿½È¡MPU6050ï¿½Ä½Ç¼ï¿½ï¿½Ù¶ï¿½ï¿½ï¿½ï¿½ï¿½
+  * @param   *gyroData ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½
   * @retval  x
   */
 void MPU6050ReadGyro(S16_XYZ *gyroData)
@@ -173,10 +173,10 @@ void MPU6050ReadGyro(S16_XYZ *gyroData)
 }
 
 /*
- * º¯ÊýÃû£ºget_acc_raw
- * ÃèÊö  £º¶ÁÈ¡¼ÓËÙ¶È¼ÆÈýÖáÔ­Ê¼Êý¾Ý
- * ÊäÈë  £º     
- * ·µ»Ø  £º     
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½get_acc_raw
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ù¶È¼ï¿½ï¿½ï¿½ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½ï¿½
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½     
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½     
  */
 void get_acc_raw(void)
 {
@@ -186,10 +186,10 @@ void get_acc_raw(void)
   acc_raw_f.z = (float)acc_raw.z;
 }
 /*
- * ±äÁ¿Ãû£ºgyro_30hz_parameter
- * ÃèÊö  £º°ÍÌØÎÖË¹µÍÍ¨ÂË²¨Æ÷²ÎÊý
- * ÊäÈë  £º     
- * ·µ»Ø  £º     
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½gyro_30hz_parameter
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¹ï¿½ï¿½Í¨ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½     
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½     
  */
 _Butterworth_parameter gyro_30hz_parameter =
 {
@@ -201,42 +201,42 @@ _Butterworth_parameter gyro_30hz_parameter =
 _Butterworth_data   gyro_butter_data[3];
 
 /*
- * º¯ÊýÃû£ºget_gyro_raw
- * ÃèÊö  £º¶ÁÈ¡ÍÓÂÝÒÇÈýÖáÔ­Ê¼Êý¾Ý & ÁãÆ«Ð£×¼È¥³ý & µÍÍ¨ÂË²¨
- * ÊäÈë  £º     
- * ·µ»Ø  £º     
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½get_gyro_raw
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½ï¿½ & ï¿½ï¿½Æ«Ð£×¼È¥ï¿½ï¿½ & ï¿½ï¿½Í¨ï¿½Ë²ï¿½
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½     
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½     
  */
 void get_gyro_raw(void)
 {
   MPU6050ReadGyro(&gyro_raw);
-  /* ½«Ô­Ê¼ÕûÐÍÊý¾Ý×ªÎª¸¡µãÐÍÊý¾Ý */
+  /* ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªÎªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
   gyro_raw_cal.x = (float) gyro_raw.x;
   gyro_raw_cal.y = (float) gyro_raw.y;
   gyro_raw_cal.z = (float) gyro_raw.z;
-  /* Ô­Ê¼Êý¾Ý¼õÈ¥Ð£×¼ÁãÆ«Êý¾Ý */
+  /* Ô­Ê¼ï¿½ï¿½ï¿½Ý¼ï¿½È¥Ð£×¼ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½ */
   gyro_raw.x = gyro_raw.x - gyro_offset.x;
   gyro_raw.y = gyro_raw.y - gyro_offset.y;
   gyro_raw.z = gyro_raw.z - gyro_offset.z;        
-  /* ÈýÖá½ÇËÙ¶ÈÔ­Ê¼Êý¾Ý½øÐÐÂË²¨´¦Àí²¢×ªÎª¸¡µãÀàÐÍ */  
+  /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½Ô­Ê¼ï¿½ï¿½ï¿½Ý½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªÎªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */  
   gyro_raw_f.x = (float)butterworth_lpf( ( (float) gyro_raw.x) , &gyro_butter_data[0] , &gyro_30hz_parameter );
   gyro_raw_f.y = (float)butterworth_lpf( ( (float) gyro_raw.y) , &gyro_butter_data[1] , &gyro_30hz_parameter );
   gyro_raw_f.z = (float)butterworth_lpf( ( (float) gyro_raw.z) , &gyro_butter_data[2] , &gyro_30hz_parameter );
 }
 /*
- * º¯ÊýÃû£ºget_iir_factor
- * ÃèÊö  £ºÇóÈ¡IIRÂË²¨Æ÷µÄÂË²¨Òò×Ó
- * ÊäÈë  £ºout_factorÂË²¨Òò×ÓÊ×µØÖ·£¬TimeÈÎÎñÖ´ÐÐÖÜÆÚ£¬Cut_OffÂË²¨½ØÖ¹ÆµÂÊ     
- * ·µ»Ø  £º     
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½get_iir_factor
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½È¡IIRï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½out_factorï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×µï¿½Ö·ï¿½ï¿½Timeï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½ï¿½Ú£ï¿½Cut_Offï¿½Ë²ï¿½ï¿½ï¿½Ö¹Æµï¿½ï¿½     
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½     
  */
 void get_iir_factor(float *out_factor,float Time, float Cut_Off)
 {
 	*out_factor = Time /( Time + 1/(2.0f * PI * Cut_Off) );
 }
 /**
-  * @brief   IIRµÍÍ¨ÂË²¨Æ÷
-  * @param   *acc_in ÊäÈëÈýÖáÊý¾ÝÖ¸Õë±äÁ¿
-  * @param   *acc_out Êä³öÈýÖáÊý¾ÝÖ¸Õë±äÁ¿
-  * @param   lpf_factor ÂË²¨ÒòÊý
+  * @brief   IIRï¿½ï¿½Í¨ï¿½Ë²ï¿½ï¿½ï¿½
+  * @param   *acc_in ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½
+  * @param   *acc_out ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½
+  * @param   lpf_factor ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½
   * @retval  x
   */
 void acc_iir_lpf(SI_F_XYZ *acc_in,SI_F_XYZ *acc_out,float lpf_factor)
@@ -246,7 +246,7 @@ void acc_iir_lpf(SI_F_XYZ *acc_in,SI_F_XYZ *acc_out,float lpf_factor)
 	acc_out->z = acc_out->z + lpf_factor * (acc_in->z - acc_out->z); 
 }
 /**
-  * @brief   ¼ÓËÙ¶È¼ÆÂË²¨²ÎÊý
+  * @brief   ï¿½ï¿½ï¿½Ù¶È¼ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½
   */
 _Butterworth_parameter acc_5hz_parameter =
 {
@@ -275,10 +275,10 @@ _Butterworth_parameter acc_5hz_parameter =
 
 _Butterworth_data   acc_butter_data[3];
 /*
- * º¯ÊýÃû£ºacc_butterworth_lpf
- * ÃèÊö  £º°ÍÌØÎÖË¹¼ÓËÙ¶ÈµÍÍ¨ÂË²¨
- * ÊäÈë  £ºacc_inÂË²¨Ç°µÄ¼ÓËÙ¶ÈÊ×µØÖ·£¬acc_outÂË²¨ºóµÄÊä³ö¼ÓËÙ¶ÈÊý¾ÝÊ×µØÖ·     
- * ·µ»Ø  £º     
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½acc_butterworth_lpf
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¹ï¿½ï¿½ï¿½Ù¶Èµï¿½Í¨ï¿½Ë²ï¿½
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½acc_inï¿½Ë²ï¿½Ç°ï¿½Ä¼ï¿½ï¿½Ù¶ï¿½ï¿½×µï¿½Ö·ï¿½ï¿½acc_outï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×µï¿½Ö·     
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½     
  */
 void acc_butterworth_lpf(SI_F_XYZ *acc_in,SI_F_XYZ *acc_out)
 {
@@ -287,10 +287,10 @@ void acc_butterworth_lpf(SI_F_XYZ *acc_in,SI_F_XYZ *acc_out)
     acc_out->z = butterworth_lpf(acc_in->z,&acc_butter_data[2],&acc_5hz_parameter);    
 }
 /*
- * º¯ÊýÃû£ºget_acc_g
- * ÃèÊö  £ºÔ­Ê¼¼ÓËÙ¶È×ªÎªÖØÁ¦¼ÓËÙ¶ÈgÎªµ¥Î»Êý¾Ý
- * ÊäÈë  £ºacc_inÔ­Ê¼µÄ¼ÓËÙ¶ÈÊ×µØÖ·£¬acc_outÒÔgÎªµ¥Î»µÄ¼ÓËÙ¶ÈÊý¾ÝÊ×µØÖ·     
- * ·µ»Ø  £º     
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½get_acc_g
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½Ù¶ï¿½×ªÎªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½gÎªï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½acc_inÔ­Ê¼ï¿½Ä¼ï¿½ï¿½Ù¶ï¿½ï¿½×µï¿½Ö·ï¿½ï¿½acc_outï¿½ï¿½gÎªï¿½ï¿½Î»ï¿½Ä¼ï¿½ï¿½Ù¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×µï¿½Ö·     
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½     
  */
 void get_acc_g(SI_F_XYZ *acc_in,SI_F_XYZ *acc_out)
 {
@@ -299,10 +299,10 @@ void get_acc_g(SI_F_XYZ *acc_in,SI_F_XYZ *acc_out)
 	acc_out->z = (float)(acc_in->z * acc_raw_to_g);
 }
 /*
- * º¯ÊýÃû£ºget_rad_s
- * ÃèÊö  £ºÔ­Ê¼ÍÓÂÝÒÇÊý¾Ý×ªÎª»¡¶È/ÃëÎªµ¥Î»µÄÊý¾Ý
- * ÊäÈë  £ºgyro_inÔ­Ê¼µÄÍÓÂÝÒÇÊý¾ÝÊ×µØÖ·£¬gyro_outÒÔrad/sÎªµ¥Î»µÄÍÓÂÝÒÇÊý¾ÝÊ×µØÖ·     
- * ·µ»Ø  £º     
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½get_rad_s
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªÎªï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½Îªï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½gyro_inÔ­Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×µï¿½Ö·ï¿½ï¿½gyro_outï¿½ï¿½rad/sÎªï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×µï¿½Ö·     
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½     
  */
 void get_rad_s(SI_F_XYZ *gyro_in,SI_F_XYZ *gyro_out)
 {
@@ -311,10 +311,10 @@ void get_rad_s(SI_F_XYZ *gyro_in,SI_F_XYZ *gyro_out)
 	gyro_out->z = (float)(gyro_in->z * gyro_raw_to_radian_s);
 }
 /*
- * º¯ÊýÃû£ºget_deg_s
- * ÃèÊö  £ºÔ­Ê¼ÍÓÂÝÒÇÊý¾Ý×ªÎª¶È/ÃëÎªµ¥Î»µÄÊý¾Ý
- * ÊäÈë  £ºgyro_inÔ­Ê¼µÄÍÓÂÝÒÇÊý¾ÝÊ×µØÖ·£¬gyro_deg_outÒÔdeg/sÎªµ¥Î»µÄÍÓÂÝÒÇÊý¾ÝÊ×µØÖ·     
- * ·µ»Ø  £º     
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½get_deg_s
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªÎªï¿½ï¿½/ï¿½ï¿½Îªï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½gyro_inÔ­Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×µï¿½Ö·ï¿½ï¿½gyro_deg_outï¿½ï¿½deg/sÎªï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×µï¿½Ö·     
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½     
  */
 void get_deg_s(SI_F_XYZ *gyro_in,SI_F_XYZ *gyro_deg_out)
 {
@@ -323,17 +323,17 @@ void get_deg_s(SI_F_XYZ *gyro_in,SI_F_XYZ *gyro_deg_out)
 	gyro_deg_out->z = (float)(gyro_in->z * gyro_raw_to_deg_s);    
 }
 /*
- * º¯ÊýÃû£ºgyro_cal
- * ÃèÊö  £ºÍÓÂÝÒÇÁãÆ«Êý¾ÝÐ£×¼
- * ÊäÈë  £ºgyro_inÔ­Ê¼µÄ¾²Ö¹Ê±ÍÓÂÝÒÇÈýÖáÊý¾ÝÊ×µØÖ·    
- * ·µ»Ø  £º     
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½gyro_cal
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½Ð£×¼
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½gyro_inÔ­Ê¼ï¿½Ä¾ï¿½Ö¹Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×µï¿½Ö·    
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½     
  */
 void gyro_cal(SI_F_XYZ *gyro_in)
 {
   float pFlashRead[3];
   if(CalGyro.flag==1 && 1)                                    
   {
-    if(CalGyro.i < GyroCalSumValue)		                                        //Ô­Ê¼¾²Ö¹Êý¾Ý¶à´ÎÀÛ¼ÓÇóÈ¡Æ½¾ù£¬GyroCalSumValueÎªÀÛ¼Ó´ÎÊý
+    if(CalGyro.i < GyroCalSumValue)		                                        //Ô­Ê¼ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½Ý¶ï¿½ï¿½ï¿½Û¼ï¿½ï¿½ï¿½È¡Æ½ï¿½ï¿½ï¿½ï¿½GyroCalSumValueÎªï¿½Û¼Ó´ï¿½ï¿½ï¿½
     {                       
       CalGyro.offset.x += gyro_in->x; 
       CalGyro.offset.y += gyro_in->y;
@@ -343,72 +343,72 @@ void gyro_cal(SI_F_XYZ *gyro_in)
     else
     {
       CalGyro.i = 0;
-      CalGyro.OffsetFlashWrite.x = CalGyro.offset.x / GyroCalSumValue;        //µÃµ½ÈýÖáµÄ¾²Ö¹ÁãÆ«Êý¾Ý 
-      CalGyro.OffsetFlashWrite.y = CalGyro.offset.y / GyroCalSumValue;        //µÃµ½ÈýÖáµÄ¾²Ö¹ÁãÆ«Êý¾Ý 
-      CalGyro.OffsetFlashWrite.z = CalGyro.offset.z / GyroCalSumValue;        //µÃµ½ÈýÖáµÄ¾²Ö¹ÁãÆ«Êý¾Ý 
+      CalGyro.OffsetFlashWrite.x = CalGyro.offset.x / GyroCalSumValue;        //ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½Ä¾ï¿½Ö¹ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½ 
+      CalGyro.OffsetFlashWrite.y = CalGyro.offset.y / GyroCalSumValue;        //ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½Ä¾ï¿½Ö¹ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½ 
+      CalGyro.OffsetFlashWrite.z = CalGyro.offset.z / GyroCalSumValue;        //ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½Ä¾ï¿½Ö¹ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½ 
 
-      /* ½«ÍÓÂÝÒÇÁãÆ«Ð´Èëflash */
+      /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ«Ð´ï¿½ï¿½flash */
       FLASH_WriteThreeFloatData(SENSOR_CAL_ADDRESS, CalGyro.OffsetFlashWrite.x,
                                                     CalGyro.OffsetFlashWrite.y,
                                                     CalGyro.OffsetFlashWrite.z);
-      /* Ð£×¼ÍêÊý¾ÝÖ®ºóÁ¢Âí¶ÁÈ¡³öÀ´½øÐÐÊ¹ÓÃ */
+      /* Ð£×¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ */
       FLASH_ReadFloatData(SENSOR_CAL_ADDRESS,&pFlashRead[0],3);
-      printf("pCal£º%f  %f  %f \r\n",pFlashRead[0],pFlashRead[1],pFlashRead[2]);
+      printf("pCalï¿½ï¿½%f  %f  %f \r\n",pFlashRead[0],pFlashRead[1],pFlashRead[2]);
       CalGyro.OffsetFlashRead.x = pFlashRead[0] ; 
       CalGyro.OffsetFlashRead.y = pFlashRead[1] ; 
       CalGyro.OffsetFlashRead.z = pFlashRead[2] ; 
       
-      /* ÅÐ¶ÏÊÇ·ñÕýÈ·¶Á³ö */
+      /* ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½ */
       if(FloatComparison( &CalGyro.OffsetFlashRead, 300.0f) == HAL_OK)
       {
-        _set_val(&gyro_offset , &CalGyro.OffsetFlashRead);                  //ÍÓÂÝÒÇÁãÆ«Ê¹ÓÃÉèÖÃ
-        CalGyro.success = 1;                                                //Ð£×¼³É¹¦
+        _set_val(&gyro_offset , &CalGyro.OffsetFlashRead);                  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ«Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        CalGyro.success = 1;                                                //Ð£×¼ï¿½É¹ï¿½
       }
       else 
       {
         setFloatValue(&gyro_offset , 0.0f); 
-        CalGyro.success = 2;                                                //Ð£×¼Ê§°ÜÔò²»½øÐÐÁãÆ«¸³Öµ²Ù×÷ 
+        CalGyro.success = 2;                                                //Ð£×¼Ê§ï¿½ï¿½ï¿½ò²»½ï¿½ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ 
       }
-      CalGyro.offset.x = 0;                                                 //Çå³ýÐ£×¼ÁãÆ«Êý¾Ý
-      CalGyro.offset.y = 0;                                                 //Çå³ýÐ£×¼ÁãÆ«Êý¾Ý
-      CalGyro.offset.z = 0;                                                 //Çå³ýÐ£×¼ÁãÆ«Êý¾Ý  
-      CalGyro.flag = 0;                                                     //Çå³ýÐ£×¼±ê×¼Î»
+      CalGyro.offset.x = 0;                                                 //ï¿½ï¿½ï¿½Ð£×¼ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½
+      CalGyro.offset.y = 0;                                                 //ï¿½ï¿½ï¿½Ð£×¼ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½
+      CalGyro.offset.z = 0;                                                 //ï¿½ï¿½ï¿½Ð£×¼ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½  
+      CalGyro.flag = 0;                                                     //ï¿½ï¿½ï¿½Ð£×¼ï¿½ï¿½×¼Î»
     }
   }
 }
 
 /*
- * º¯ÊýÃû£ºReadCalData
- * ÃèÊö  £ºÍÓÂÝÒÇÁãÆ«Ð£×¼Êý¾Ý½øÐÐ¶ÁÈ¡
- * ÊäÈë  £º      
- * ·µ»Ø  £ºerr     
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ReadCalData
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ«Ð£×¼ï¿½ï¿½ï¿½Ý½ï¿½ï¿½Ð¶ï¿½È¡
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½      
+ * ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½err     
  */
 int readCalData(void)
 {
   float pFlashRead[3];
   ErrorStatus err;
   
-  /* Ã¿´ÎÉÏµç¶ÁÈ¡³öÀ´Ð£×¼Êý¾Ý½øÐÐÊ¹ÓÃ */
+  /* Ã¿ï¿½ï¿½ï¿½Ïµï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ð£×¼ï¿½ï¿½ï¿½Ý½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ */
   FLASH_ReadFloatData(SENSOR_CAL_ADDRESS,&pFlashRead[0],3);
   printf("calFLASH reading \r\n");
   printf("calFLASH reading \r\n");
   printf("calFLASH reading \r\n");
-  printf("pCal£º%f  %f  %f \r\n",pFlashRead[0],pFlashRead[1],pFlashRead[2]);
+  printf("pCalï¿½ï¿½%f  %f  %f \r\n",pFlashRead[0],pFlashRead[1],pFlashRead[2]);
   
   CalGyro.OffsetFlashRead.x = pFlashRead[0] ; 
   CalGyro.OffsetFlashRead.y = pFlashRead[1] ; 
   CalGyro.OffsetFlashRead.z = pFlashRead[2] ; 
   
-  /* ÅÐ¶ÏÊÇ·ñÕýÈ·¶Á³ö */
-  if(FloatComparison( &CalGyro.OffsetFlashRead, 300.0f) == HAL_OK)              //Ð£×¼ÕýÈ·Õý³£Ð´ÈëÁãÆ«Êý¾Ý
+  /* ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½ */
+  if(FloatComparison( &CalGyro.OffsetFlashRead, 300.0f) == HAL_OK)              //Ð£×¼ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½
   {
-    _set_val(&gyro_offset, &CalGyro.OffsetFlashRead);                           //ÍÓÂÝÒÇÁãÆ«ÉèÖÃ
+    _set_val(&gyro_offset, &CalGyro.OffsetFlashRead);                           //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½
     err = SUCCESS ;
-    printf("calFLASH READ SUCCEED£¡\r\n");
+    printf("calFLASH READ SUCCEEDï¿½ï¿½\r\n");
   }
   else                    
   {
-    setFloatValue(&gyro_offset, 0.0f);                                          //Ð£×¼´íÎóÐ´Èë0
+    setFloatValue(&gyro_offset, 0.0f);                                          //Ð£×¼ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½0
     err = ERROR;
     printf("calFLASH READ ERR\r\n");
     printf("calFLASH READ ERR\r\n");
